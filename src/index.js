@@ -8,9 +8,10 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 
+
 ReactDOM.render(
     <Escrow />,
-    document.getElementById('root')
+document.getElementById('root')
 );
 
 registerServiceWorker();

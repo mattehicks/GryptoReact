@@ -205,25 +205,39 @@ const Escrow_abi = [
 
 let HelloGrypto = () => <span> Making Crypto History </span>
 
-
 //Set Provider:
 var web3 = new Web3();
 web3.setProvider(new web3.providers.HttpProvider('http://34.217.182.230:8545'));
-//var web3  = new Web3.providers.HttpProvider('http://34.217.182.230:8545');
-//var web3 = new Web3(this.web3Provider);
+
+console.log("----web3:----")
+console.log( web3);
 
 //debug:
-console.log("provider:")
+console.log("-----provider:-----");
 console.log(web3.currentProvider);
+
 var mywallet = web3.eth.coinbase;
 web3.eth.defaultAccount = web3.eth.accounts[0];
+
+console.log("----ACCOUNT:----\n", web3.eth.getAccounts())
+    //takes a second to return a value
+web3.eth.getAccounts().then(console.log);
+
 console.log("coinbase account  " + mywallet);
 console.log("default account:  " + web3.eth.defaultAccount);
 console.log("hardcoded wallet: " + wallet);
 
+if (typeof web3 !== 'undefined') {
+    web3 = new Web3(web3.currentProvider);
+    console.log("web3 ok");
+} else {
+    // set the provider you want from Web3.providers
+    web3 = new Web3.providers.HttpProvider('http://34.217.182.230:8545');
+    console.log("web3 loaded");
+}
 
 //Web3 contract:
-//var DeployedContract = web3.eth.contract(escrow_address);
+//var DeployedContract = web3.eth.Contract(escrow_address);
 //var MyContract = DeployedContract.at(escrow_address);
 
 //truffle contract:
@@ -232,8 +246,23 @@ var MyContract = contract({
     abi: Escrow_abi,
     address: escrow_address, // optional
 })
-MyContract.setProvider(web3.currentProvider);
 
+
+console.log("current provider: \n", web3.currentProvider);
+console.log("-------my contract: \n", MyContract);
+
+//----------------------GET TRUFFLE CONTRACT--------------------:
+var deployed;
+MyContract.deployed().then(function(instance) {
+    var deployed = instance;
+    console.log("----sent start command----\n");
+    return instance.start("Cyrano De Bergerac");
+}).then(function(result) {
+    console.log("-----returned: -----\n" + result);
+});
+
+
+MyContract.setProvider(web3.currentProvider);
 //dirty hack for web3@1.0.0 support for localhost testrpc, see https://github.com/trufflesuite/truffle-contract/issues/56#issuecomment-331084530
 if (typeof MyContract.currentProvider.sendAsync !== "function") {
     MyContract.currentProvider.sendAsync = function() {
@@ -244,50 +273,23 @@ if (typeof MyContract.currentProvider.sendAsync !== "function") {
 }
 
 
-if (typeof web3 !== 'undefined') {
-    web3 = new Web3(web3.currentProvider);
-    console.log("type ok");
-} else {
-    // set the provider you want from Web3.providers
-    web3 = new Web3.providers.HttpProvider('http://34.217.182.230:8545');
-    console.log("type loaded");
-}
-
-console.log("----web3:----")
-console.log( web3);
-
-//truffle contract:
-var deployed;
-MyContract.deployed().then(function(instance) {
-    var deployed = instance;
-    return instance.start("Cyrano De Bergerac");
-    console.log("----sent start command----")
-}).then(function(result) {
-    console.log("-----returned: " + result);
-});
-
-
-
 //var MyContract = new web3.eth.contract(abi);  //V 0.xx
 //var myInstance = MyContract.at(escrow_address);
+var Contract2 = new web3.eth.Contract(Escrow_abi, escrow_address);
 
-//var MyContract = new web3.eth.Contract(abi, escrow_address);
+console.log("---------TRUFFLE CONTRACT  1---------------\n", Contract2);
+console.log("---------TRUFFLE CONTRACT  2---------------\n", MyContract);
 
-
-console.log(MyContract);
-
-//MyContract.deployed().then(inst => {  MyContract = inst });
-
-
-MyContract.at(escrow_address).setup.call(wallet,wallet).then(function(result){
-    alert("Escrow created!" + result);
+MyContract.at(escrow_address).start.call("Matt").then(function(result){
+    alert("Trying to start contract: \n" + result);
 });
 
+
+//MyContract.deployed().then(instance => {  MyContract = inst });
+MyContract.deployed().then(function(instance){return instance.start("JoHNNY");});
 
 //var myEvent = MyContract.escrowEvent1();
 //var filter = web3.eth.filter('pending');
-
-
 
 class Escrow extends Component {
     constructor(props) {
