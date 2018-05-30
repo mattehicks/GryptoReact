@@ -205,62 +205,65 @@ const Escrow_abi = [
 
 let HelloGrypto = () => <span> Making Crypto History </span>
 
-//Set Provider:
-var web3 = new Web3();
+//CREATE AN REQUEST MANAGER
+var web3 = new Web3('http://34.217.182.230:8545');
+
+///////NEED TO USE THIS TO GET ACCOUNT ACCESS:
 web3.setProvider(new web3.providers.HttpProvider('http://34.217.182.230:8545'));
 
-console.log("----web3:----")
-console.log( web3);
+//console.log("----web3:----")
+//console.log( web3);
 
 //debug:
 console.log("-----provider:-----");
 console.log(web3.currentProvider);
 
+
+//coinbase
 var mywallet = web3.eth.coinbase;
 web3.eth.defaultAccount = web3.eth.accounts[0];
 
-console.log("----ACCOUNT:----\n", web3.eth.getAccounts())
-    //takes a second to return a value
+// eth get account
+//// promise -- returns array of accounts
+console.log("----ACCOUNT:----\n")
 web3.eth.getAccounts().then(console.log);
+
 
 console.log("coinbase account  " + mywallet);
 console.log("default account:  " + web3.eth.defaultAccount);
 console.log("hardcoded wallet: " + wallet);
 
-if (typeof web3 !== 'undefined') {
-    web3 = new Web3(web3.currentProvider);
-    console.log("web3 ok");
-} else {
-    // set the provider you want from Web3.providers
-    web3 = new Web3.providers.HttpProvider('http://34.217.182.230:8545');
-    console.log("web3 loaded");
-}
 
-//Web3 contract:
-//var DeployedContract = web3.eth.Contract(escrow_address);
+//////// REFERENCE TO A DEPLOYED CONTRACT //////////////
+//
+var DeployedContract = new web3.eth.Contract(Escrow_abi, escrow_address);
+DeployedContract.options.gasPrice = '20000000000000'; // default gas price in wei
+
+// var DeployedContract = web3.eth.Contract(escrow_address);
 //var MyContract = DeployedContract.at(escrow_address);
 
-//truffle contract:
-var contract = require("truffle-contract");
-var MyContract = contract({
+console.log("----Deployed Contract:----\n", DeployedContract);
+console.log("---- Options:----\n", DeployedContract.options);
+
+
+var Contract2 = new web3.eth.Contract(Escrow_abi, {
+    from: escrow_address, // default from address
+    gasPrice: '30000000000' // default gas price in wei, 20 gwei in this case
+});
+
+console.log("-------CONTRACT 2 ----------------- \n");
+console.log(Contract2);
+
+var MyContract = TruffleContract({
     abi: Escrow_abi,
     address: escrow_address, // optional
 })
 
+console.log("------- MyContract ----------------- \n");
+console.log(MyContract);
 
-console.log("current provider: \n", web3.currentProvider);
-console.log("-------my contract: \n", MyContract);
 
-//----------------------GET TRUFFLE CONTRACT--------------------:
-var deployed;
-MyContract.deployed().then(function(instance) {
-    var deployed = instance;
-    console.log("----sent start command----\n");
-    return instance.start("Cyrano De Bergerac");
-}).then(function(result) {
-    console.log("-----returned: -----\n" + result);
-});
-
+console.log("-------setting provider ----------------- \n");
 
 MyContract.setProvider(web3.currentProvider);
 //dirty hack for web3@1.0.0 support for localhost testrpc, see https://github.com/trufflesuite/truffle-contract/issues/56#issuecomment-331084530
@@ -272,21 +275,26 @@ if (typeof MyContract.currentProvider.sendAsync !== "function") {
     };
 }
 
-
-//var MyContract = new web3.eth.contract(abi);  //V 0.xx
-//var myInstance = MyContract.at(escrow_address);
-var Contract2 = new web3.eth.Contract(Escrow_abi, escrow_address);
-
-console.log("---------TRUFFLE CONTRACT  1---------------\n", Contract2);
-console.log("---------TRUFFLE CONTRACT  2---------------\n", MyContract);
-
-MyContract.at(escrow_address).start.call("Matt").then(function(result){
-    alert("Trying to start contract: \n" + result);
+//----------------------GET TRUFFLE CONTRACT--------------------:
+MyContract.deployed().then(function(instance) {
+    var deployed = instance;
+    console.log("----sent start command----\n");
+    return instance.start("Cyrano De Bergerac");
+}).then(function(result) {
+    console.log("-----returned: -----\n" + result);
 });
 
+// console.log("-------starting contract MATT ----------------- \n", MyContract);
+// MyContract.at(escrow_address).start.call("Matt").then(function(result){
+//     alert("Trying to start contract: \n" + result);
+// });
 
+
+
+console.log("-------trying to start contract JOHHNY ----------------- \n", MyContract);
 //MyContract.deployed().then(instance => {  MyContract = inst });
-MyContract.deployed().then(function(instance){return instance.start("JoHNNY");});
+MyContract.deployed().then(function(instance){return instance.start("JOHHNY");});
+
 
 //var myEvent = MyContract.escrowEvent1();
 //var filter = web3.eth.filter('pending');
