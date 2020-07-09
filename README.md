@@ -1,2 +1,6 @@
 Groupon Clone, for Crypto.
-React frontend for ETH network applications and smart-contracts
+React frontend for ETH (dApp) applications and smart-contracts
+
+Technology stack:
+Ethereum blockchain
+Solidity contracts
